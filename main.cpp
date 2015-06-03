@@ -49,6 +49,7 @@ void Game::humanTurn() {
 
 void Game::aiTurn() {
 	Game sim(state, toPlay, depth);
+	// Simulate a new game (with the top-level game as a template, and use its best move)
 	Move best = sim.simulate();
 	state[best.i][best.j] = toPlay;
 	if(depth==1)
@@ -57,6 +58,7 @@ void Game::aiTurn() {
 	checkIfDone(best.i, best.j);
 }
 
+// This function simulates a game with all possible cases
 Move Game::simulate() {
 	int imax=-1, jmax=-1, scoremax=-100;
 	int temp[3][3];
@@ -102,32 +104,30 @@ Move Game::simulate() {
 		}
 	}
 
+	// Return the move with the best score
 	return Move(imax, jmax);
 }
 
+// Checks if game has a result yet and allots the winner.
 void Game::checkIfDone(int i, int j) {
 	if(state[i][0] == state[i][1] && state[i][1] == state[i][2] && state[i][0]) {
 		winner=state[i][0];
 		isDone=1;
-		//cout << "m1\n";
 		return;
 	}
 	if(state[0][j] == state[1][j] && state[1][j] == state[2][j] && state[0][j]) {
 		winner=state[0][j];
 		isDone=1;
-		//cout << "m2\n";
 		return;
 	}
 	if(i==j && state[0][0] == state[1][1] && state[1][1] == state[2][2] && state[0][0]) {
 		winner=state[0][0];
 		isDone=1;
-		//cout << "m3\n";
 		return;
 	}
 	if(i+j==2 && state[0][2] == state[1][1] && state[1][1] == state[2][0] && state[0][2]) {
 		winner=state[0][2];
 		isDone=1;
-		//cout << "m4\n";
 		return;
 	}
 	
@@ -138,8 +138,6 @@ void Game::checkIfDone(int i, int j) {
 				allFull = 0;
 
 	if(allFull) {
-		if(toPrint)
-			cout << "full\n";
 		winner = 0;
 		isDone = 1;
 		return;
@@ -147,6 +145,7 @@ void Game::checkIfDone(int i, int j) {
 	return;
 }
 
+// To print the current state every move
 void Game::printState() {
 	cout << "###########################\n";
 	for(int i=0;i<3;i++) {
@@ -158,6 +157,7 @@ void Game::printState() {
 	cout << "###########################\n";
 }
 
+// Constructor for the top-level game
 Game::Game() {
 	toPlay=1;
 	isDone=0;
@@ -169,6 +169,7 @@ Game::Game() {
 			state[i][j]=0;
 }
 
+// Constructor for the simulated games
 Game::Game(int current[3][3], int CurToPlay, int CurDepth) {
 	toPlay=CurToPlay;
 	isDone=0;
