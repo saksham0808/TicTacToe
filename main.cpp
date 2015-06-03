@@ -16,12 +16,13 @@ class Game {
 	public:
 		int toPlay;
 		int winner;
+		int depth;
 		bool isDone;
 		void humanTurn();
 		void aiTurn();
 		void printState();
 		Game();
-		Game(int current[3][3], int CurToPlay);
+		Game(int current[3][3], int CurToPlay, int CurDepth);
 
 	private:
 		int state[3][3];
@@ -47,9 +48,11 @@ void Game::humanTurn() {
 }
 
 void Game::aiTurn() {
-	Game sim(state, toPlay);
+	Game sim(state, toPlay, depth);
 	Move best = sim.simulate();
 	state[best.i][best.j] = toPlay;
+	if(depth==1)
+		cout << toPlay << " at depth 1 chose " << best.i << "," << best.j << endl;
 	toPlay = -toPlay;
 	checkIfDone(best.i, best.j);
 }
@@ -63,6 +66,8 @@ Move Game::simulate() {
 	for(int i=0;i<3;i++) {
 		for(int j=0;j<3;j++) {
 			if(!state[i][j]) {
+				if(depth == 1)
+					cout << toPlay << " placing at " << i << "," << j << endl;
 				state[i][j] = toPlay;
 				int whoPlayed=toPlay;
 				checkIfDone(i, j);
@@ -92,6 +97,7 @@ Move Game::simulate() {
 				for(int a=0;a<3;a++)
 					for(int b=0;b<3;b++)
 						state[a][b]=temp[a][b];
+				toPlay=whoPlayed;
 			}
 		}
 	}
@@ -156,16 +162,18 @@ Game::Game() {
 	toPlay=1;
 	isDone=0;
 	winner=0;
+	depth=0;
 	toPrint=1;
 	for(int i=0;i<3;i++)
 		for(int j=0;j<3;j++)
 			state[i][j]=0;
 }
 
-Game::Game(int current[3][3], int CurToPlay) {
+Game::Game(int current[3][3], int CurToPlay, int CurDepth) {
 	toPlay=CurToPlay;
 	isDone=0;
 	winner=0;
+	depth=CurDepth+1;
 	toPrint=0;
 	for(int i=0;i<3;i++)
 		for(int j=0;j<3;j++)
