@@ -2,16 +2,6 @@
 
 using namespace std;
 
-class Move {
-	public:
-		int i;
-		int j;
-		Move(int a, int b) {
-			i = a;
-			j = b;
-		}
-};
-
 class Game {
 	public:
 		int toPlay;
@@ -48,17 +38,14 @@ int Game::humanTurn() {
 
 int Game::aiTurn() {
 	if(isDone) {
-		if(winner == 1)
-			return 10;
-		else if(winner == -1)
-			return -10;
-		else
-			return 0;
+		if(winner == 1) return 10;
+		else if(winner == -1) return -10;
+		else return 0;
 	}
 
 	int imax=-1, jmax=-1, scorec=-100*(toPlay);
-	for(int i=0;i<3;i++) {
-		for(int j=0;j<3;j++) {
+	for(int i=0;i<3;i++)
+		for(int j=0;j<3;j++)
 			if(!state[i][j]) {
 				state[i][j]=toPlay;
 				Game sim(state, -toPlay, depth);
@@ -71,13 +58,10 @@ int Game::aiTurn() {
 				}
 				state[i][j]=0;
 			}
-		}
-	}
 	state[imax][jmax]=toPlay;
 	toPlay=-toPlay;
 	checkIfDone(imax, jmax);
-	if(toPrint)
-		printState();
+	if(toPrint) printState();
 	return scorec;
 }
 
@@ -154,7 +138,7 @@ Game::Game(int current[3][3], int CurToPlay, int CurDepth) {
 			state[i][j]=current[i][j];
 }
 
-// toPlay == 1 means knot's turn, toPlay == -1 means cross's turn
+// toPlay == 1 means human's turn, toPlay == -1 means ai's turn
 int main() {
 	Game game;
 	game.printState();
