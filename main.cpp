@@ -57,10 +57,6 @@ int Game::aiTurn() {
 	}
 
 	int imax=-1, jmax=-1, scorec=-100*(toPlay);
-	int temp[3][3];
-	for(int i=0;i<3;i++)
-		for(int j=0;j<3;j++)
-			temp[i][j]=state[i][j];
 	for(int i=0;i<3;i++) {
 		for(int j=0;j<3;j++) {
 			if(!state[i][j]) {
@@ -73,16 +69,15 @@ int Game::aiTurn() {
 					imax=i;
 					jmax=j;
 				}
+				state[i][j]=0;
 			}
 		}
 	}
-	for(int a=0;a<3;a++)
-		for(int b=0;b<3;b++)
-			state[a][b]=temp[a][b];
 	state[imax][jmax]=toPlay;
 	toPlay=-toPlay;
 	checkIfDone(imax, jmax);
-	cout << "Score " << scorec << " and depth " << depth << endl;
+	if(toPrint)
+		printState();
 	return scorec;
 }
 
@@ -165,7 +160,6 @@ int main() {
 	game.printState();
 	while(!game.isDone) {
 		(game.toPlay==1) ? game.humanTurn() : game.aiTurn();
-		game.printState();
 	}
 	cout << "And the winner is........... " << game.winner << endl;
 }
