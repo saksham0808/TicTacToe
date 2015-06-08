@@ -18,8 +18,8 @@ class Game {
 		int winner;
 		int depth;
 		bool isDone;
-		void humanTurn();
-		void aiTurn();
+		int humanTurn();
+		int aiTurn();
 		void printState();
 		Game();
 		Game(int current[3][3], int CurToPlay, int CurDepth);
@@ -27,12 +27,11 @@ class Game {
 	private:
 		int state[3][3];
 		void checkIfDone(int i, int j);
-		Move simulate();
 		bool toPrint;
 };
 
 // State 1 is a human placed counter, -1 is computer placed, 0 is empty
-void Game::humanTurn() {
+int Game::humanTurn() {
 	int i,j;
 	while(true) {
 		cout << "Enter your move: ";
@@ -47,20 +46,17 @@ void Game::humanTurn() {
 	checkIfDone(i, j);
 }
 
-void Game::aiTurn() {
-	Game sim(state, toPlay, depth);
-	// Simulate a new game (with the top-level game as a template, and use its best move)
-	Move best = sim.simulate();
-	state[best.i][best.j] = toPlay;
-	if(depth==1)
-		cout << toPlay << " at depth 1 chose " << best.i << "," << best.j << endl;
-	toPlay = -toPlay;
-	checkIfDone(best.i, best.j);
-}
+int Game::aiTurn() {
+	if(isDone) {
+		if(winner == 1)
+			return 10;
+		else if(winner == -1)
+			return -10;
+		else
+			return 0;
+	}
 
-// This function simulates a game with all possible cases
-Move Game::simulate() {
-	int imax=-1, jmax=-1, scoremax=-100;
+	int imax=-1, jmax=-1, scorec=-100*(toPlay);
 	int temp[3][3];
 	for(int i=0;i<3;i++)
 		for(int j=0;j<3;j++)
@@ -68,44 +64,26 @@ Move Game::simulate() {
 	for(int i=0;i<3;i++) {
 		for(int j=0;j<3;j++) {
 			if(!state[i][j]) {
-				if(depth == 1)
-					cout << toPlay << " placing at " << i << "," << j << endl;
-				state[i][j] = toPlay;
-				int whoPlayed=toPlay;
-				checkIfDone(i, j);
-				toPlay = -toPlay;
-				while(!isDone) {
-					aiTurn();
+				state[i][j]=toPlay;
+				Game sim(state, -toPlay, depth);
+				sim.checkIfDone(i,j);
+				int score = sim.aiTurn();
+				if((toPlay==1 && score>scorec) || (toPlay==-1 && score<scorec)) {
+					scorec=score;
+					imax=i;
+					jmax=j;
 				}
-				if(winner != whoPlayed) {
-					if(scoremax<-10) {
-						imax=i;
-						jmax=j;
-						scoremax=-10;
-					}
-				} else if (winner == whoPlayed) {
-					if(scoremax<10) {
-						imax=i;
-						jmax=j;
-						scoremax=10;
-					}
-				} else {
-					if(scoremax<0) {
-						imax=i;
-						jmax=j;
-						scoremax=0;
-					}
-				}
-				for(int a=0;a<3;a++)
-					for(int b=0;b<3;b++)
-						state[a][b]=temp[a][b];
-				toPlay=whoPlayed;
 			}
 		}
 	}
-
-	// Return the move with the best score
-	return Move(imax, jmax);
+	for(int a=0;a<3;a++)
+		for(int b=0;b<3;b++)
+			state[a][b]=temp[a][b];
+	state[imax][jmax]=toPlay;
+	toPlay=-toPlay;
+	checkIfDone(imax, jmax);
+	cout << "Score " << scorec << " and depth " << depth << endl;
+	return scorec;
 }
 
 // Checks if game has a result yet and allots the winner.
